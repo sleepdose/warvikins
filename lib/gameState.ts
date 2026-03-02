@@ -85,7 +85,6 @@ function loadState(): GameState {
     const saved = localStorage.getItem('kingdom_rise_save');
     if (saved) {
       const parsed = JSON.parse(saved);
-      // Merge with defaults to handle new fields
       return {
         ...createDefaultState(),
         ...parsed,
@@ -171,7 +170,7 @@ export function useGameState() {
         let newTroops = { ...prev.troops };
         let newTrainingQueue = [...prev.trainingQueue];
         const completedTraining: string[] = [];
-        
+
         newTrainingQueue.forEach(entry => {
           if (now >= entry.finishTime) {
             newTroops[entry.troopType] = (newTroops[entry.troopType] || 0) + entry.count;
@@ -233,7 +232,6 @@ export function useGameState() {
       if (targetLevel > building.maxLevel) return prev;
       if (prev.buildings[buildingId].upgrading) return prev;
 
-      // Check castle level requirement for other buildings
       if (buildingId !== 'castle') {
         const castleLevel = prev.buildings.castle.level;
         if (targetLevel > castleLevel) return prev;
@@ -360,7 +358,6 @@ export function useGameState() {
     const totalTroops = Object.values(prev.troops).reduce((a, b) => a + b, 0);
     if (totalTroops === 0) return null;
 
-    const wallDefense = (prev.buildings.walls.level) * (BUILDINGS.walls.defenseBonus || 0);
     const effectivePower = armyPower;
     const victory = effectivePower >= camp.power;
 
@@ -373,7 +370,6 @@ export function useGameState() {
       loot[resource] = Math.floor(amount * lootMultiplier);
     });
 
-    // Calculate troop losses
     const troopsLost: Partial<Record<TroopType, number>> = {};
     const lossRate = victory ? Math.min(0.3, camp.power / (effectivePower * 3)) : 0.5;
 
@@ -386,7 +382,6 @@ export function useGameState() {
       }
     });
 
-    // Apply loot
     let newResources = { ...prev.resources };
     (Object.entries(loot) as [ResourceType, number][]).forEach(([resource, amount]) => {
       newResources[resource] = Math.min(maxStorage, newResources[resource] + amount);
